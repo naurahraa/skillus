@@ -1,0 +1,134 @@
+// schema.prisma
+// SkillUs — Platform tiket seminar/workshop/webinar
+// Database: PostgreSQL (Neon / Supabase, serverless-friendly untuk Vercel)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================== ENUMS ==================
+
+enum Role {
+  peserta
+  penyelenggara
+  admin
+}
+
+enum EventStatus {
+  draft
+  published
+}
+
+enum RegistrationStatus {
+  registered
+  checked_in
+  cancelled
+}
+
+enum TransactionStatus {
+  pending
+  success
+  failed
+}
+
+// ================== MODELS ==================
+
+model User {
+  id        Int      @id @default(autoincrement())
+  role      Role
+  email     String   @unique
+  password  String // simpan hashed (bcrypt), jangan plain text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  pesertaProfile       PesertaProfile?
+  penyelenggaraProfile PenyelenggaraProfile?
+  events               Event[]
+  registrations        Registration[]
+
+  @@map("users")
+}
+
+model PesertaProfile {
+  userId      Int     @id @map("user_id")
+  namaLengkap String? @map("nama_lengkap")
+  institusi   String?
+  noHp        String? @map("no_hp")
+  kotaAsal    String? @map("kota_asal")
+  alamat      String?
+  avatarUrl   String? @map("avatar_url")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("peserta_profiles")
+}
+
+model PenyelenggaraProfile {
+  userId     Int     @id @map("user_id")
+  namaPic    String? @map("nama_pic")
+  organisasi String?
+  noHp       String? @map("no_hp")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("penyelenggara_profiles")
+}
+
+model Event {
+  id              Int         @id @default(autoincrement())
+  penyelenggaraId Int         @map("penyelenggara_id")
+  judul           String      @db.VarChar(150)
+  deskripsi       String?
+  kategori        String?     @db.VarChar(50)
+  lokasi          String?     @db.VarChar(100)
+  tanggal         DateTime?   @db.Date
+  waktu           String?     @db.VarChar(10)
+  harga           Int         @default(0)
+  kuota           Int         @default(0)
+  // URL ke storage eksternal (Vercel Blob/Supabase Storage), bukan path lokal
+  poster          String?
+  status          EventStatus @default(published)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  penyelenggara User           @relation(fields: [penyelenggaraId], references: [id], onDelete: Cascade)
+  registrations Registration[]
+
+  @@map("events")
+}
+
+model Registration {
+  id        Int                @id @default(autoincrement())
+  userId    Int                @map("user_id")
+  eventId   Int                @map("event_id")
+  status    RegistrationStatus @default(registered)
+  qrCode    String?            @map("qr_code")
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  transaction Transaction?
+
+  // Satu user cuma bisa punya 1 registrasi aktif per event
+  @@unique([userId, eventId])
+  @@map("registrations")
+}
+
+model Transaction {
+  id             Int               @id @default(autoincrement())
+  registrationId Int               @unique @map("registration_id")
+  amount         Int               @default(0)
+  status         TransactionStatus @default(pending)
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}

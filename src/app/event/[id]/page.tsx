@@ -4,9 +4,26 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Suspense } from "react";
+import SuccessToast from "@/components/SuccessToast";
+import type { Metadata } from "next";
 import QRCodeModal from "@/components/dashboard/QRCodeModal";
 import CancelRegistrationButton from "@/components/CancelRegistrationButton";
 import { cancelRegistration } from "./actions";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const event = await prisma.event.findUnique({ where: { id: Number(id) } });
+
+  return {
+    title: event ? `${event.judul} — SkillUs` : "Event — SkillUs",
+    description: event?.deskripsi ?? "Detail event di SkillUs.",
+  };
+}
 
 export default async function EventDetailPage({
   params,
@@ -63,6 +80,10 @@ export default async function EventDetailPage({
   return (
     <>
       <Navbar />
+
+      <Suspense fallback={null}>
+        <SuccessToast />
+      </Suspense>
 
       <div className="border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-2 text-sm text-gray-500">
@@ -140,6 +161,13 @@ export default async function EventDetailPage({
                   {kuotaPenuh ? (
                     <span className="bg-gray-100 text-gray-400 text-xs font-semibold px-4 py-2.5 rounded-lg cursor-not-allowed">
                       Kuota Penuh
+                    </span>
+                  ) : session?.user && session.user.role !== "peserta" ? (
+                    <span
+                      className="bg-gray-100 text-gray-400 text-xs font-semibold px-4 py-2.5 rounded-lg cursor-not-allowed"
+                      title="Cuma akun peserta yang bisa beli tiket"
+                    >
+                      Beli Tiket
                     </span>
                   ) : (
                     <Link

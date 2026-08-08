@@ -34,6 +34,7 @@ enum TransactionStatus {
   pending
   success
   failed
+  cancelled
 }
 
 // ================== MODELS ==================

@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 
-export default function ChangePasswordModal() {
+export default function ChangeEmailModal({ currentEmail }: { currentEmail: string }) {
   const [open, setOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -23,9 +23,8 @@ export default function ChangePasswordModal() {
 
   function resetAndClose() {
     setOpen(false);
+    setNewEmail("");
     setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
     setError("");
     setSuccess(false);
   }
@@ -33,24 +32,19 @@ export default function ChangePasswordModal() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
-    if (newPassword !== confirmPassword) {
-      setError("Konfirmasi kata sandi baru nggak cocok.");
-      return;
-    }
-
     setLoading(true);
+
     try {
-      const res = await fetch("/api/change-password", {
+      const res = await fetch("/api/change-email", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
+        body: JSON.stringify({ currentPassword, newEmail }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Gagal mengubah kata sandi.");
+        setError(data.error ?? "Gagal mengubah email.");
         setLoading(false);
         return;
       }
@@ -66,10 +60,11 @@ export default function ChangePasswordModal() {
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="w-full bg-[#EDF3FF] text-[#4F4CEE] text-sm font-semibold py-2.5 rounded-lg hover:bg-[#DEE7FF] transition"
+        className="text-xs font-semibold text-[#4F4CEE] hover:underline whitespace-nowrap"
       >
-        Ubah Sekarang
+        Ubah Email
       </button>
 
       {open && (
@@ -83,48 +78,39 @@ export default function ChangePasswordModal() {
           >
             {success ? (
               <div className="text-center py-4">
-                <p className="font-semibold text-[#1A194D] mb-2">Kata sandi berhasil diubah!</p>
-                <p className="text-sm text-gray-500 mb-5">Pake kata sandi baru buat login berikutnya.</p>
+                <p className="font-semibold text-[#1A194D] mb-2">Email berhasil diubah!</p>
+                <p className="text-sm text-gray-500 mb-5">
+                  Kamu perlu login ulang pake email baru ({newEmail}).
+                </p>
                 <button
-                  onClick={resetAndClose}
+                  onClick={() => signOut({ callbackUrl: "/login" })}
                   className="w-full bg-[#4F4CEE] text-white font-semibold py-2.5 rounded-lg text-sm"
                 >
-                  Tutup
+                  Login Ulang
                 </button>
               </div>
             ) : (
               <>
-                <h3 className="font-bold text-[#1A194D] mb-4">Ubah Kata Sandi</h3>
+                <h3 className="font-bold text-[#1A194D] mb-1">Ubah Email</h3>
+                <p className="text-xs text-gray-500 mb-4">Email sekarang: {currentEmail}</p>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-[#1A194D] mb-1.5">Kata Sandi Lama</label>
+                    <label className="block text-sm font-semibold text-[#1A194D] mb-1.5">Email Baru</label>
+                    <input
+                      type="email"
+                      required
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F4CEE]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-[#1A194D] mb-1.5">Konfirmasi Kata Sandi</label>
                     <input
                       type="password"
                       required
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F4CEE]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-[#1A194D] mb-1.5">Kata Sandi Baru</label>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F4CEE]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-[#1A194D] mb-1.5">Konfirmasi Kata Sandi Baru</label>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F4CEE]"
                     />
                   </div>

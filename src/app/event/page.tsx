@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
@@ -6,9 +7,14 @@ import CategoryTabs from "@/components/CategoryTabs";
 import EventListCard from "@/components/EventListCard";
 import type { Prisma } from "@prisma/client";
 
-type SearchParams = { kategori?: string; q?: string; lokasi?: string };
+type SearchParams = { kategori?: string; q?: string; lokasi?: string; tanggal?: string };
 
 const ALL_KATEGORI = ["Seminar", "Webinar", "Workshop", "Kursus"];
+
+export const metadata: Metadata = {
+  title: "Semua Event — SkillUs",
+  description: "Cari seminar, workshop, webinar, dan kursus sesuai minatmu.",
+};
 
 export default async function EventPage({
   searchParams,
@@ -26,6 +32,12 @@ export default async function EventPage({
   }
   if (params.lokasi) {
     where.lokasi = { contains: params.lokasi, mode: "insensitive" };
+  }
+  if (params.tanggal) {
+    const selectedDate = new Date(params.tanggal);
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    where.tanggal = { gte: selectedDate, lt: nextDay };
   }
 
   const events = await prisma.event.findMany({
@@ -75,11 +87,10 @@ export default async function EventPage({
             <div>
               <label className="block text-sm font-semibold text-[#1A194D] mb-1">Waktu</label>
               <input
-                type="text"
-                disabled
-                placeholder="Segera hadir"
-                title="Fitur filter tanggal segera hadir"
-                className="w-full border-b border-gray-200 py-1.5 text-sm placeholder:text-gray-400 cursor-not-allowed"
+                type="date"
+                name="tanggal"
+                defaultValue={params.tanggal ?? ""}
+                className="w-full border-b border-gray-200 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-[#4F4CEE]"
               />
             </div>
             <button

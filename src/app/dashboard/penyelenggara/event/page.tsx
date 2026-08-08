@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteEvent } from "./actions";
 import DeleteEventButton from "@/components/dashboard/DeleteEventButton";
+import SuccessToast from "@/components/SuccessToast";
 
 export default async function KelolaEventPage() {
   const session = await auth();
@@ -20,6 +22,9 @@ export default async function KelolaEventPage() {
 
   return (
     <div>
+      <Suspense fallback={null}>
+        <SuccessToast />
+      </Suspense>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-[#1A194D]">Kelola Event</h1>
         <Link

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import EventKamuTabs from "@/components/dashboard/EventKamuTabs";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -76,6 +77,7 @@ export default async function PesertaDashboardPage() {
               tanggal={sedangBerlangsung.event.tanggal}
               waktu={sedangBerlangsung.event.waktu}
               poster={sedangBerlangsung.event.poster}
+              qrCode={sedangBerlangsung.qrCode}
             />
           </div>
         </div>
@@ -89,12 +91,12 @@ export default async function PesertaDashboardPage() {
           <div className="flex flex-col items-center text-center py-10">
             <img src="/empty-state-illustration.svg" alt="Belum ada event" className="w-64 mb-6" />
             <p className="text-gray-600 mb-5">Kamu belum memiliki event apapun, yuk explore...</p>
-            <a
+            <Link
               href="/event"
               className="bg-[#4F4CEE] text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition"
             >
               Cari Event
-            </a>
+            </Link>
           </div>
         ) : (
           <EventKamuTabs
@@ -105,6 +107,7 @@ export default async function PesertaDashboardPage() {
               tanggal: r.event.tanggal,
               waktu: r.event.waktu,
               poster: r.event.poster,
+              qrCode: r.qrCode,
             }))}
             selesai={selesai.map((r) => ({
               id: r.event.id,
@@ -113,6 +116,7 @@ export default async function PesertaDashboardPage() {
               tanggal: r.event.tanggal,
               waktu: r.event.waktu,
               poster: r.event.poster,
+              qrCode: r.qrCode,
             }))}
           />
         )}

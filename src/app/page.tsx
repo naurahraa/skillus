@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -9,7 +10,12 @@ import FilterBar from "@/components/FilterBar";
 import { blogPosts } from "@/lib/blog-data";
 import type { Prisma } from "@prisma/client";
 
-type SearchParams = { hari?: string; jenis?: string; kategori?: string; q?: string; lokasi?: string };
+type SearchParams = { hari?: string; jenis?: string; kategori?: string; q?: string; lokasi?: string; tanggal?: string };
+
+export const metadata: Metadata = {
+  title: "SkillUs — Platform Event Akademik Kampus",
+  description: "Temukan seminar, workshop, webinar, dan kegiatan akademik lainnya di satu tempat.",
+};
 
 export default async function HomePage({
   searchParams,
@@ -43,7 +49,13 @@ export default async function HomePage({
     where.lokasi = { not: "Online" };
   }
 
-  if (params.hari) {
+  if (params.tanggal) {
+    // Filter tanggal spesifik dari search bar, lebih presisi daripada quick-filter "Hari"
+    const selectedDate = new Date(params.tanggal);
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    where.tanggal = { gte: selectedDate, lt: nextDay };
+  } else if (params.hari) {
     const now = new Date();
     let start: Date | undefined;
     let end: Date | undefined;
@@ -146,11 +158,10 @@ export default async function HomePage({
             <div>
               <label className="block text-sm font-semibold text-[#1A194D] mb-1">Waktu</label>
               <input
-                type="text"
-                disabled
-                placeholder="Segera hadir"
-                title="Fitur filter tanggal segera hadir"
-                className="w-full border-b border-gray-200 py-1.5 text-sm placeholder:text-gray-400 cursor-not-allowed"
+                type="date"
+                name="tanggal"
+                defaultValue={params.tanggal ?? ""}
+                className="w-full border-b border-gray-200 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-[#4F4CEE]"
               />
             </div>
             <button
@@ -178,18 +189,19 @@ export default async function HomePage({
           {events.length === 0 ? (
             <p className="text-gray-500 text-center py-16">Belum ada event yang tersedia.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="flex gap-5 overflow-x-auto pb-2 -mx-6 px-6 snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible">
               {events.map((event) => (
-                <EventCard
-                  key={event.id}
-                  id={event.id}
-                  judul={event.judul ?? "Tanpa judul"}
-                  kategori={event.kategori}
-                  lokasi={event.lokasi}
-                  tanggal={event.tanggal}
-                  harga={event.harga ?? 0}
-                  poster={event.poster}
-                />
+                <div key={event.id} className="w-64 shrink-0 snap-start sm:w-auto">
+                  <EventCard
+                    id={event.id}
+                    judul={event.judul ?? "Tanpa judul"}
+                    kategori={event.kategori}
+                    lokasi={event.lokasi}
+                    tanggal={event.tanggal}
+                    harga={event.harga ?? 0}
+                    poster={event.poster}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -222,12 +234,23 @@ export default async function HomePage({
               <p className="text-gray-600 mb-6">
                 Daftarkan event kampusmu secara mudah dan gratis lewat SkillUs.
               </p>
-              <Link
-                href={buatEventHref}
-                className="inline-block bg-[#F99007] text-white font-semibold px-8 py-3.5 rounded-lg hover:opacity-90 transition"
-              >
-                Buat Event Sekarang
-              </Link>
+              {session?.user?.role === "peserta" ? (
+                <div>
+                  <span className="inline-block bg-gray-200 text-gray-500 font-semibold px-8 py-3.5 rounded-lg cursor-not-allowed">
+                    Buat Event Sekarang
+                  </span>
+                  <p className="text-xs text-gray-500 mt-3 max-w-xs">
+                    Akun kamu terdaftar sebagai Peserta. Buat bikin event, daftar akun baru sebagai Penyelenggara pakai email lain.
+                  </p>
+                </div>
+              ) : (
+                <Link
+                  href={buatEventHref}
+                  className="inline-block bg-[#F99007] text-white font-semibold px-8 py-3.5 rounded-lg hover:opacity-90 transition"
+                >
+                  Buat Event Sekarang
+                </Link>
+              )}
             </div>
           </div>
         </section>

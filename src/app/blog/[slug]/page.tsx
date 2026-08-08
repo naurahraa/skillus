@@ -2,7 +2,23 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ShareButton from "@/components/ShareButton";
+import type { Metadata } from "next";
 import { blogPosts } from "@/lib/blog-data";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = blogPosts.find((p) => p.slug === slug);
+
+  return {
+    title: post ? `${post.title} — SkillUs` : "Artikel — SkillUs",
+    description: post?.excerpt ?? "Artikel di SkillUs.",
+  };
+}
 
 export default async function BlogDetailPage({
   params,
@@ -13,6 +29,8 @@ export default async function BlogDetailPage({
   const post = blogPosts.find((p) => p.slug === slug);
 
   if (!post) notFound();
+
+  const relatedPosts = blogPosts.filter((p) => p.slug !== slug).slice(0, 3);
 
   return (
     <>
@@ -32,7 +50,10 @@ export default async function BlogDetailPage({
         <div className="h-64 rounded-xl bg-gradient-to-br from-[#EDF3FF] to-[#DEE7FF] mb-8" />
 
         <h1 className="text-3xl font-bold text-[#1A194D] mb-3">{post.title}</h1>
-        <p className="text-sm text-gray-400 mb-8">{post.date} — {post.author}</p>
+        <div className="flex items-center justify-between mb-8">
+          <p className="text-sm text-gray-400">{post.date} — {post.author}</p>
+          <ShareButton title={post.title} />
+        </div>
 
         <div className="space-y-5">
           {post.content.map((paragraph, i) => (
@@ -46,6 +67,31 @@ export default async function BlogDetailPage({
           </Link>
         </div>
       </main>
+
+      {relatedPosts.length > 0 && (
+        <section className="bg-[#F8F9FB] py-16">
+          <div className="max-w-5xl mx-auto px-6">
+            <h2 className="text-xl font-bold text-[#1A194D] mb-8">Artikel Lainnya</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedPosts.map((related) => (
+                <Link
+                  key={related.slug}
+                  href={`/blog/${related.slug}`}
+                  className="block bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition"
+                >
+                  <div className="h-32 bg-gradient-to-br from-[#EDF3FF] to-[#DEE7FF]" />
+                  <div className="p-4">
+                    <h3 className="font-semibold text-sm text-[#1A194D] mb-1.5 leading-snug line-clamp-2">
+                      {related.title}
+                    </h3>
+                    <p className="text-xs text-gray-400">{related.date}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </>

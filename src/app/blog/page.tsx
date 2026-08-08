@@ -1,7 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { blogPosts } from "@/lib/blog-data";
+
+export const metadata: Metadata = {
+  title: "Insight & Artikel — SkillUs",
+  description: "Tips, panduan, dan inspirasi seputar pengembangan diri, akademik, dan teknologi.",
+};
 
 export default function BlogPage() {
   return (

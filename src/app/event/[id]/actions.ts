@@ -13,6 +13,7 @@ export async function cancelRegistration(eventId: number) {
   const [registration, event] = await Promise.all([
     prisma.registration.findUnique({
       where: { userId_eventId: { userId, eventId } },
+      include: { transaction: true },
     }),
     prisma.event.findUnique({ where: { id: eventId } }),
   ]);
@@ -25,7 +26,15 @@ export async function cancelRegistration(eventId: number) {
       where: { id: registration.id },
       data: { status: "cancelled" },
     });
+
+    // Ikut update status transaksinya, biar konsisten di riwayat Transaksi
+    if (registration.transaction) {
+      await prisma.transaction.update({
+        where: { id: registration.transaction.id },
+        data: { status: "cancelled" },
+      });
+    }
   }
 
-  redirect(`/event/${eventId}`);
+  redirect(`/event/${eventId}?toast=` + encodeURIComponent("Pendaftaran berhasil dibatalkan."));
 }

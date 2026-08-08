@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import MobileDashboardNav from "@/components/dashboard/MobileDashboardNav";
 
 const MENU = [
   { href: "/dashboard/penyelenggara", label: "Dashboard", icon: "grid" },
@@ -29,8 +30,9 @@ export default async function PenyelenggaraDashboardLayout({
       <DashboardTopbar nama={nama} />
       <div className="max-w-[1600px] mx-auto flex">
         <DashboardSidebar nama={nama} role="penyelenggara" menu={MENU} />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6 pb-24 md:pb-6">{children}</main>
       </div>
+      <MobileDashboardNav menu={MENU} />
     </div>
   );
 }

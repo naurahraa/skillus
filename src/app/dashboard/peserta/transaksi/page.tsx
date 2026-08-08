@@ -5,12 +5,14 @@ const STATUS_STYLE: Record<string, string> = {
   success: "text-green-600",
   pending: "text-amber-500",
   failed: "text-red-500",
+  cancelled: "text-gray-400",
 };
 
 const STATUS_LABEL: Record<string, string> = {
   success: "Success",
   pending: "Pending",
   failed: "Failed",
+  cancelled: "Dibatalkan",
 };
 
 export default async function TransaksiPage() {
@@ -53,10 +55,18 @@ export default async function TransaksiPage() {
                 return (
                   <tr key={tx.id} className="border-b border-gray-50 last:border-0">
                     <td className="px-4 py-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#EDF3FF] to-[#DEE7FF] flex items-center justify-center">
-                        <svg width="16" height="10" viewBox="0 0 83 54" fill="none" opacity="0.6">
-                          <path d="M29.2979 29.708C29.2982 28.8174 30.4241 28.317 31.127 28.8643C33.7771 30.928 39.0567 34.2939 45.2979 34.2939C51.4034 34.2939 56.3585 31.0721 58.9141 29C59.6201 28.4279 60.7979 28.9321 60.7979 29.8408V36.9326C60.7977 37.1663 60.7166 37.392 60.5547 37.5605C59.438 38.7228 54.463 43.2939 45.2979 43.2939C36.1518 43.2939 30.7996 38.7414 29.5713 37.5674C29.3905 37.3945 29.2979 37.1554 29.2979 36.9053V29.708Z" fill="#4F4CEE" />
-                        </svg>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#EDF3FF] to-[#DEE7FF] flex items-center justify-center overflow-hidden shrink-0">
+                        {tx.registration.event.poster ? (
+                          <img
+                            src={tx.registration.event.poster}
+                            alt={judul}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <svg width="16" height="10" viewBox="0 0 83 54" fill="none" opacity="0.6">
+                            <path d="M29.2979 29.708C29.2982 28.8174 30.4241 28.317 31.127 28.8643C33.7771 30.928 39.0567 34.2939 45.2979 34.2939C51.4034 34.2939 56.3585 31.0721 58.9141 29C59.6201 28.4279 60.7979 28.9321 60.7979 29.8408V36.9326C60.7977 37.1663 60.7166 37.392 60.5547 37.5605C59.438 38.7228 54.463 43.2939 45.2979 43.2939C36.1518 43.2939 30.7996 38.7414 29.5713 37.5674C29.3905 37.3945 29.2979 37.1554 29.2979 36.9053V29.708Z" fill="#4F4CEE" />
+                          </svg>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3 font-medium text-[#1A194D]">{judul}</td>

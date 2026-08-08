@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ChangeEmailModal from "@/components/ChangeEmailModal";
 
 type Props = {
   email: string;
@@ -84,12 +85,15 @@ export default function ProfilPenyelenggaraForm({ email, namaPic, organisasi, no
 
         <div>
           <label className="block text-sm font-semibold text-[#1A194D] mb-1.5">Email</label>
-          <input
-            type="email"
-            value={email}
-            disabled
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
-          />
+          <div className="flex items-center gap-3">
+            <input
+              type="email"
+              value={email}
+              disabled
+              className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+            />
+            <ChangeEmailModal currentEmail={email} />
+          </div>
         </div>
 
         <div>

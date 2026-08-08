@@ -18,6 +18,10 @@ export default async function CheckoutPage({
     redirect(`/login?callbackUrl=/event/${eventId}/checkout`);
   }
 
+  if (session.user.role !== "peserta") {
+    redirect(`/event/${eventId}`);
+  }
+
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) redirect("/event");
 
@@ -27,7 +31,7 @@ export default async function CheckoutPage({
     },
   });
   if (existing && existing.status !== "cancelled") {
-    redirect(`/event/${eventId}`);
+    redirect(`/event/${eventId}?toast=` + encodeURIComponent("Pembayaran berhasil! Tiket kamu udah aktif."));
   }
 
   const jumlahTerdaftar = await prisma.registration.count({
@@ -35,7 +39,7 @@ export default async function CheckoutPage({
   });
   const kuotaPenuh = (event.kuota ?? 0) > 0 && jumlahTerdaftar >= (event.kuota ?? 0);
   if (kuotaPenuh) {
-    redirect(`/event/${eventId}`);
+    redirect(`/event/${eventId}?toast=` + encodeURIComponent("Pembayaran berhasil! Tiket kamu udah aktif."));
   }
 
   const hargaText = (event.harga ?? 0) === 0 ? "Gratis" : `Rp${(event.harga ?? 0).toLocaleString("id-ID")}`;
@@ -54,7 +58,7 @@ export default async function CheckoutPage({
     });
     const masihPenuh = (currentEvent?.kuota ?? 0) > 0 && currentTerdaftar >= (currentEvent?.kuota ?? 0);
     if (masihPenuh) {
-      redirect(`/event/${eventId}`);
+      redirect(`/event/${eventId}?toast=` + encodeURIComponent("Pembayaran berhasil! Tiket kamu udah aktif."));
     }
 
     const qrCode = crypto.randomUUID();
@@ -76,7 +80,7 @@ export default async function CheckoutPage({
       },
     });
 
-    redirect(`/event/${eventId}`);
+    redirect(`/event/${eventId}?toast=` + encodeURIComponent("Pembayaran berhasil! Tiket kamu udah aktif."));
   }
 
   return (

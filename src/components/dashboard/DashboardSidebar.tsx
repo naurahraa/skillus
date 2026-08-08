@@ -56,7 +56,7 @@ export default function DashboardSidebar({ nama, role, menu }: Props) {
     .toUpperCase();
 
   return (
-    <aside className="w-64 shrink-0 bg-white border-r border-gray-100 min-h-[calc(100vh-73px)] p-5">
+    <aside className="hidden md:block w-64 shrink-0 bg-white border-r border-gray-100 min-h-[calc(100vh-73px)] p-5">
       <div className="flex items-center gap-3 pb-5 mb-5 border-b border-gray-100">
         <div className="w-11 h-11 rounded-full bg-[#4F4CEE] text-white flex items-center justify-center font-semibold text-sm shrink-0">
           {initials}

@@ -55,7 +55,7 @@ export async function createEvent(formData: FormData) {
     },
   });
 
-  redirect("/dashboard/penyelenggara/event");
+  redirect("/dashboard/penyelenggara/event?toast=" + encodeURIComponent("Event berhasil dibuat!"));
 }
 
 export async function updateEvent(eventId: number, formData: FormData) {
@@ -84,7 +84,7 @@ export async function updateEvent(eventId: number, formData: FormData) {
     },
   });
 
-  redirect(`/dashboard/penyelenggara/event/${eventId}`);
+  redirect(`/dashboard/penyelenggara/event/${eventId}?toast=` + encodeURIComponent("Perubahan berhasil disimpan!"));
 }
 
 export async function deleteEvent(eventId: number) {
@@ -92,10 +92,10 @@ export async function deleteEvent(eventId: number) {
 
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event || event.penyelenggaraId !== penyelenggaraId) {
-    redirect("/dashboard/penyelenggara/event");
+    redirect("/dashboard/penyelenggara/event?toast=" + encodeURIComponent("Event berhasil dihapus."));
   }
 
   await prisma.event.delete({ where: { id: eventId } });
 
-  redirect("/dashboard/penyelenggara/event");
+  redirect("/dashboard/penyelenggara/event?toast=" + encodeURIComponent("Event berhasil dihapus."));
 }

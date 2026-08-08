@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import MobileDashboardNav from "@/components/dashboard/MobileDashboardNav";
 
 const MENU = [
   { href: "/dashboard/admin", label: "Dashboard", icon: "grid" },
@@ -21,8 +22,9 @@ export default async function AdminDashboardLayout({
       <DashboardTopbar nama={nama} />
       <div className="max-w-[1600px] mx-auto flex">
         <DashboardSidebar nama={nama} role="admin" menu={MENU} />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6 pb-24 md:pb-6">{children}</main>
       </div>
+      <MobileDashboardNav menu={MENU} />
     </div>
   );
 }

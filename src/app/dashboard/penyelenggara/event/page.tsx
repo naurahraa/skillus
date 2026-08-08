@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteEvent } from "./actions";
@@ -6,6 +7,9 @@ import DeleteEventButton from "@/components/dashboard/DeleteEventButton";
 
 export default async function KelolaEventPage() {
   const session = await auth();
+  if (!session?.user || session.user.role !== "penyelenggara") {
+    redirect("/login");
+  }
   const userId = Number(session?.user?.id);
 
   const events = await prisma.event.findMany({

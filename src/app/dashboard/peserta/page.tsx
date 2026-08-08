@@ -75,6 +75,7 @@ export default async function PesertaDashboardPage() {
               lokasi={sedangBerlangsung.event.lokasi}
               tanggal={sedangBerlangsung.event.tanggal}
               waktu={sedangBerlangsung.event.waktu}
+              poster={sedangBerlangsung.event.poster}
             />
           </div>
         </div>
@@ -103,6 +104,7 @@ export default async function PesertaDashboardPage() {
               lokasi: r.event.lokasi,
               tanggal: r.event.tanggal,
               waktu: r.event.waktu,
+              poster: r.event.poster,
             }))}
             selesai={selesai.map((r) => ({
               id: r.event.id,
@@ -110,6 +112,7 @@ export default async function PesertaDashboardPage() {
               lokasi: r.event.lokasi,
               tanggal: r.event.tanggal,
               waktu: r.event.waktu,
+              poster: r.event.poster,
             }))}
           />
         )}

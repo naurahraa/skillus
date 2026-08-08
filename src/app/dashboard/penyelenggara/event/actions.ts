@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
+import sharp from "sharp";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -17,8 +18,18 @@ async function uploadPosterIfProvided(formData: FormData): Promise<string | null
   const file = formData.get("poster") as File | null;
   if (!file || file.size === 0) return null;
 
-  const blob = await put(`event-posters/${Date.now()}-${file.name}`, file, {
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Otomatis di-resize & dikompres, biar ukuran file poster berapa pun tetep aman
+  const compressed = await sharp(buffer)
+    .resize({ width: 1200, withoutEnlargement: true })
+    .jpeg({ quality: 80 })
+    .toBuffer();
+
+  const fileName = file.name.replace(/\.[^.]+$/, "");
+  const blob = await put(`event-posters/${Date.now()}-${fileName}.jpg`, compressed, {
     access: "public",
+    contentType: "image/jpeg",
   });
 
   return blob.url;

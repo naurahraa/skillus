@@ -9,6 +9,7 @@ type EventItem = {
   lokasi: string | null;
   tanggal: Date | null;
   waktu: string | null;
+  poster?: string | null;
 };
 
 type Props = {
@@ -59,6 +60,7 @@ export default function EventKamuTabs({ akanDatang, selesai }: Props) {
               lokasi={event.lokasi}
               tanggal={event.tanggal}
               waktu={event.waktu}
+              poster={event.poster}
             />
           ))}
         </div>

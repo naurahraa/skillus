@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { updateEvent } from "../../actions";
@@ -12,6 +12,9 @@ export default async function EditEventPage({
   const { id } = await params;
   const eventId = Number(id);
   const session = await auth();
+  if (!session?.user || session.user.role !== "penyelenggara") {
+    redirect("/login");
+  }
   const userId = Number(session?.user?.id);
 
   const event = await prisma.event.findUnique({ where: { id: eventId } });
@@ -22,7 +25,7 @@ export default async function EditEventPage({
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-6 max-w-2xl">
       <h1 className="text-xl font-bold text-[#1A194D] mb-6">Edit Event</h1>
-      <form action={updateEventWithId} className="space-y-5" encType="multipart/form-data">
+      <form action={updateEventWithId} className="space-y-5">
         <EventFormFields
           currentPosterUrl={event.poster}
           defaultValues={{

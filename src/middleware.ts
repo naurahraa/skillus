@@ -12,19 +12,16 @@ export default auth((req) => {
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isProtected = pathname.startsWith("/dashboard");
 
-  // Belum login tapi coba akses halaman yang butuh login
   if (isProtected && !session) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Udah login tapi coba akses /login atau /register lagi
   if (isAuthPage && session) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // Sudah login, cek kesesuaian role dengan folder dashboard yang diakses
   if (isProtected && session) {
     if (pathname.startsWith("/dashboard/peserta") && role !== "peserta") {
       return NextResponse.redirect(new URL("/", req.url));
@@ -40,6 +37,18 @@ export default auth((req) => {
   return NextResponse.next();
 });
 
+// Sengaja EXCLUDE /dashboard/penyelenggara/event/* dari matcher, soalnya folder itu
+// ada halaman upload file (Buat Event & Edit Event) yang kena bug Next.js:
+// middleware yang "nyentuh" body request gede bisa bikin datanya kepotong
+// ("Unexpected end of form"). Proteksi login buat halaman-halaman itu dipindah
+// jadi manual, langsung di masing-masing page.tsx-nya.
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: [
+    "/dashboard/peserta/:path*",
+    "/dashboard/admin/:path*",
+    "/dashboard/penyelenggara",
+    "/dashboard/penyelenggara/profil",
+    "/login",
+    "/register",
+  ],
 };

@@ -113,6 +113,7 @@ export default async function EventPage({
                   tanggal={event.tanggal}
                   harga={event.harga ?? 0}
                   isLoggedIn={Boolean(session?.user)}
+                  poster={event.poster}
                 />
               ))}
             </div>

@@ -14,8 +14,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SkillUs",
-  description: "Platform tiket seminar, workshop, dan webinar akademik",
+  title: "SkillUs — Platform Event Akademik Kampus",
+  description: "Platform tiket seminar, workshop, dan webinar akademik. Temukan dan ikuti berbagai kegiatan kampus dalam satu tempat.",
+  openGraph: {
+    title: "SkillUs — Platform Event Akademik Kampus",
+    description: "Temukan seminar, workshop, webinar, dan kegiatan akademik lainnya di satu tempat.",
+    siteName: "SkillUs",
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SkillUs — Platform Event Akademik Kampus",
+    description: "Temukan seminar, workshop, webinar, dan kegiatan akademik lainnya di satu tempat.",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
